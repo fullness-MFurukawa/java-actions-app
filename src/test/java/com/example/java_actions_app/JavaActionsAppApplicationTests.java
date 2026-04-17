@@ -1,11 +1,9 @@
 package com.example.java_actions_app;
 
 import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
-import org.junit.jupiter.api.Disabled;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@Disabled
-//@SpringBootTest
+@SpringBootTest
 class JavaActionsAppApplicationTests {
 
 	@Test
