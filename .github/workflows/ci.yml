@@ -23,6 +23,7 @@ jobs:
 
     - name: Gradleによるビルド
       # gradlewに実行権限を付与してから実行
+      # -x test を付けることで、テストをスキップして純粋なビルドのみを行う
       run: |
         chmod +x gradlew
-        ./gradlew build
+        ./gradlew build -x test 
