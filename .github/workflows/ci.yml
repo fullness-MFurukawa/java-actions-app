@@ -32,6 +32,6 @@ jobs:
       run: |
         chmod +x gradlew
         ./gradlew build -x test 
-    - name: 自動テストの実行(単体・結合・DB連動)
+    - name: 単体テストの実行
       # テストタスクのみを実行
       run: ./gradlew test

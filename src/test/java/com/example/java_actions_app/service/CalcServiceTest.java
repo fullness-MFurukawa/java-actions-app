@@ -7,17 +7,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** 計算サービスクラスの単体テストクラス */
-// @SpringBootTest
 public class CalcServiceTest {
 
   // テスト対象のクラスをインスタンス化
   private final CalcService calcService = new CalcService();
-
-  // コンストラクタでCalcServiceを注入
-  // @Autowired
-  // public CalcServiceTest(CalcService calcService) {
-  //  this.calcService = calcService;
-  // }
 
   @Test
   @DisplayName("正常系: 2 + 3 が 5 になること")
@@ -25,7 +18,9 @@ public class CalcServiceTest {
     // 実行 (Act) & 検証 (Assert)
     int result = calcService.execute(2, 3, "+");
     // 結果が期待値と等しいことを検証
-    assertEquals(5, result);
+    // assertEquals(5, result);
+    // 意図的にテストを失敗させる
+    assertEquals(4, result);
   }
 
   @Test
