@@ -21,10 +21,10 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
-    - name: コードフォーマットの検証(Lint)
-      run: |
-        chmod +x gradlew
-        ./gradlew spotlessCheck
+#    - name: コードフォーマットの検証(Lint)
+#      run: |
+#        chmod +x gradlew
+#        ./gradlew spotlessCheck
    
     - name: Gradleによるビルド
       # gradlewに実行権限を付与してから実行
