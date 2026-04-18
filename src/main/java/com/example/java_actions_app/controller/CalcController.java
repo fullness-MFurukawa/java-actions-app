@@ -26,10 +26,10 @@ public class CalcController {
     /**
      * 初期画面の表示
      */
-    @GetMapping("/calc")
+        @GetMapping("/calc")
     public String showForm() {
         return "calc"; // calc.htmlを返す
-    }
+        }
 
     /**
      * 計算処理の実行

@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.diffplug.spotless' version '6.25.0'
 }
 
 group = 'com.example'
@@ -35,4 +36,13 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+spotless {
+    java {
+        // GoogleのJavaフォーマットスタイルを適用
+        googleJavaFormat()
+        // 不要なimportの削除機能などを有効化
+        removeUnusedImports()
+    }
 }
