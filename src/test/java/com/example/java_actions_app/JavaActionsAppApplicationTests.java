@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-@Disabled("Testcontainersの設定がないためスキップ") 
+@Disabled("Testcontainersの設定がないためスキップ")
 class JavaActionsAppApplicationTests {
 
   @Test
