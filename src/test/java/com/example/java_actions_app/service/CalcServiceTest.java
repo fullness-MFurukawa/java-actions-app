@@ -5,21 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /** 計算サービスクラスの単体テストクラス */
-@SpringBootTest
+// @SpringBootTest
 public class CalcServiceTest {
 
   // テスト対象のクラスをインスタンス化
-  private final CalcService calcService;
+  private final CalcService calcService = new CalcService();
 
   // コンストラクタでCalcServiceを注入
-  @Autowired
-  public CalcServiceTest(CalcService calcService) {
-    this.calcService = calcService;
-  }
+  // @Autowired
+  // public CalcServiceTest(CalcService calcService) {
+  //  this.calcService = calcService;
+  // }
 
   @Test
   @DisplayName("正常系: 2 + 3 が 5 になること")
