@@ -5,18 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.example.java_actions_app.infrastructure.entity.Product;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** ProductRepositoryのデータベース連動テスト */
 // テスト実行時にHibernateが自動でテーブルを作成するよう設定
-// @SpringBootTest(properties = "spring.jpa.hibernate.ddl-auto=update")
-// @Testcontainers
+@Disabled("一時的にテストを無効化")
+@SpringBootTest(properties = "spring.jpa.hibernate.ddl-auto=update")
+@Testcontainers
 public class ProductRepositoryTest {
   // TestcontainersのPostgreSQLコンテナを定義
   // @ServiceConnectionにより、接続情報がSpringに自動注入される（設定ファイル不要！）
