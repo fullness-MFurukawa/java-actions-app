@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>計算アプリ</title>
+</head>
+<body>
+    <h1>計算アプリケーション</h1>
+    <form action="/calc" method="post">
+        <input type="number" name="v1" th:value="${v1}" required>
+        <select name="op">
+            <option value="+" th:selected="${op == '+'}">+</option>
+            <option value="-" th:selected="${op == '-'}">-</option>
+            <option value="*" th:selected="${op == '*'}">*</option>
+            <option value="/" th:selected="${op == '/'}">/</option>
+        </select>
+        <input type="number" name="v2" th:value="${v2}" required>
+        <button type="submit">計算する</button>
+    </form>
+    <hr>
+    <div th:if="${result != null}">
+        <h2>計算結果: <span th:text="${result}"></span></h2>
+    </div>
+
+    <div th:if="${error != null}">
+        <h2 style="color: red;" th:text="${error}"></h2>
+    </div>
+</body>
+</html>
