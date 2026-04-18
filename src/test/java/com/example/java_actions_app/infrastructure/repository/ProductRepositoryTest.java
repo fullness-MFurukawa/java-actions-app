@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.example.java_actions_app.infrastructure.entity.Product;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 /** ProductRepositoryのデータベース連動テスト */
 // テスト実行時にHibernateが自動でテーブルを作成するよう設定
-@Disabled("一時的にテストを無効化")
 @SpringBootTest(properties = "spring.jpa.hibernate.ddl-auto=update")
 @Testcontainers
 public class ProductRepositoryTest {
