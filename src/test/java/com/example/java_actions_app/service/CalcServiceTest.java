@@ -27,8 +27,8 @@ public class CalcServiceTest {
     void testExecuteAddition() {
         // 実行 (Act) & 検証 (Assert)
         int result = calcService.execute(2, 3, "+");
-        // 意図的にテストを失敗させる
-        assertEquals(4, result);
+        // 結果が期待値と等しいことを検証
+        assertEquals(5, result);
     }
 
     @Test
