@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.example.java_actions_app.service.CalcService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +14,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 /** 計算コントローラークラスのテストクラス */
-// @SpringBootTest
-// @AutoConfigureMockMvc
-@Disabled("一時的にコントローラーのテストを無効化")
+// @Disabled("一時的にコントローラーのテストを無効化")
 @WebMvcTest(CalcController.class) // Web層（コントローラー）のみを起動する（JPAを起動しない）
 @Import(CalcService.class) // コントローラーが依存するServiceを明示的に読み込む
 public class CalcControllerTest {
