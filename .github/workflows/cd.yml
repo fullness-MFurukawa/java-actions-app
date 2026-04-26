@@ -8,8 +8,6 @@ on:
     workflows: ["Java CI with Gradle"] 
     types:
       - completed
-    branches:
-      - main
 
 # 実行するジョブ(作業のまとまり)の定義
 jobs:
