@@ -25,9 +25,9 @@ jobs:
         # 上記のアクションに渡すパラメータ（引数）の定義
         with:
           # GitHub Secretsから認証情報を安全に取得し、環境に展開(注入)する
-          host: ${{ secrets.ACTIONS_AWS_HOST }}         # 接続先サーバーのIPアドレス
-          username: ${{ secrets.ACTIONS_AWS_USER }}     # ログインユーザー名（ubuntu）
-          key: ${{ secrets.ACTIONS_AWS_SECRET }}      # 秘密鍵（PEM）のテキストデータ
+          host: ${{ secrets.ACTIONS_AZURE_HOST }}         # 接続先サーバーのIPアドレス
+          username: ${{ secrets.ACTIONS_AZURE_USER }}     # ログインユーザー名（ubuntu）
+          key: ${{ secrets.ACTIONS_AZURE_SECRET }}      # 秘密鍵（PEM）のテキストデータ
           
           # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
           # （「|」は複数行の文字列を記述するためのYAMLの記法）
@@ -41,9 +41,9 @@ jobs:
       - name: Open JDK 21をプロビジョニング
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.ACTIONS_AWS_HOST }}
-          username: ${{ secrets.ACTIONS_AWS_USER }}
-          key: ${{ secrets.ACTIONS_AWS_SECRET }}
+          host: ${{ secrets.ACTIONS_AZURE_HOST }}
+          username: ${{ secrets.ACTIONS_AZURE_USER }}
+          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
           script: |
             #  対話型プロンプトを無効化する設定
             export DEBIAN_FRONTEND=noninteractive
