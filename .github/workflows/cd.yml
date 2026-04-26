@@ -45,9 +45,14 @@ jobs:
           username: ${{ secrets.ACTIONS_AWS_USER }}
           key: ${{ secrets.ACTIONS_AWS_SECRET }}
           script: |
-            # パッケージリストを更新
-            sudo apt-get update
-            # OpenJDK 21 (JRE) をインストール。-yで対話を省略。
-            sudo apt-get install -y openjdk-21-jre
-            # インストールされたバージョンの確認
-            java -version
+            #  対話型プロンプトを無効化する設定
+            export DEBIAN_FRONTEND=noninteractive
+            echo "--- Updating package list ---"
+            # -qqを付けると、進捗表示などの細かいログを抑制できる
+            sudo apt-get update -qq
+            echo "--- Installing OpenJDK 21 ---"
+            # 常にデフォルトの設定を選択し、確認画面を出さない
+            sudo -E apt-get install -y -qq openjdk-21-jre > /dev/null
+            echo "--- Verification ---"
+            # Javaのバージョンを標準出力へリダイレクトして表示する
+            java -version 2>&1
