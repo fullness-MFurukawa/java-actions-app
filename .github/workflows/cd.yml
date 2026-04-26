@@ -8,6 +8,8 @@ on:
     workflows: ["Java CI with Gradle"] 
     types:
       - completed
+    branches:
+      - main
 
 # 実行するジョブ(作業のまとまり)の定義
 jobs:
@@ -35,4 +37,3 @@ jobs:
             uname -a # サーバーのOSやカーネル情報を出力し、Linuxであることを確認
             echo "--- Current User ---"
             whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
-```
