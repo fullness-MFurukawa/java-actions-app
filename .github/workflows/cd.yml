@@ -39,15 +39,15 @@ jobs:
             whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
       
       - name: Open JDK 21をプロビジョニング
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.ACTIONS_AWS_HOST }}
-        username: ${{ secrets.ACTIONS_AWS_USER }}
-        key: ${{ secrets.ACTIONS_AWS_SECRET }}
-        script: |
-          # パッケージリストを更新
-          sudo apt-get update
-          # OpenJDK 21 (JRE) をインストール。-yで対話を省略。
-          sudo apt-get install -y openjdk-21-jre
-          # インストールされたバージョンの確認
-          java -version
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
+          script: |
+            # パッケージリストを更新
+            sudo apt-get update
+            # OpenJDK 21 (JRE) をインストール。-yで対話を省略。
+            sudo apt-get install -y openjdk-21-jre
+            # インストールされたバージョンの確認
+            java -version
