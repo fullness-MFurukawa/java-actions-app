@@ -25,9 +25,9 @@ jobs:
         # 上記のアクションに渡すパラメータ（引数）の定義
         with:
           # GitHub Secretsから認証情報を安全に取得し、環境に展開(注入)する
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}         # 接続先サーバーのIPアドレス
-          username: ${{ secrets.ACTIONS_AZURE_USER }}     # ログインユーザー名（ubuntu）
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}      # 秘密鍵（PEM）のテキストデータ
+          host: ${{ secrets.ACTIONS_AWS_HOST }}         # 接続先サーバーのIPアドレス
+          username: ${{ secrets.ACTIONS_AWS_USER }}     # ログインユーザー名（ubuntu）
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}      # 秘密鍵（PEM）のテキストデータ
           
           # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
           # （「|」は複数行の文字列を記述するためのYAMLの記法）
@@ -41,9 +41,9 @@ jobs:
       - name: Open JDK 21をプロビジョニング
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           script: |
             #  対話型プロンプトを無効化する設定
             export DEBIAN_FRONTEND=noninteractive
@@ -76,30 +76,51 @@ jobs:
           # 「-x test」を付与することで、既にCIで確認済みのテストをスキップし、
           # 純粋なビルド(Executable JARの作成)のみを高速に行う。
           ./gradlew build -x test
+          # 追加：ビルド成果物フォルダ(build/libs)にSQLファイルをコピーする
+          cp SQL/init.sql build/libs/
 
       - name: 転送先ディレクトリの事前作成
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送先のディレクトリが存在しないとエラーになるため、事前に作成
           # 「-p」オプションにより、既に存在する場合は何もしない(冪等性)ようにしている
-          script: mkdir -p /home/${{ secrets.ACTIONS_AZURE_USER }}/app
+          script: mkdir -p /home/${{ secrets.ACTIONS_AWS_USER }}/app
 
       - name: 成果物(JAR)のファイル転送(SCP)
         # 最新版(@master)を指定
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送元のファイルパス(先ほどのビルドステップで生成されたJARファイル)
           source: "build/libs/*.jar"
           # 転送先のサーバー上のディレクトリパス
-          target: "/home/${{ secrets.ACTIONS_AZURE_USER }}/app"
+          target: "/home/${{ secrets.ACTIONS_AWS_USER }}/app"
           # 【重要】strip_components: 2 について
           # これを指定しないと、ターゲット配下に「build/libs/〜.jar」という
           # フォルダ階層ごとコピーされてしまう
           # 2を指定することで、最初の2階層(build と libs)を取り除き、appフォルダの直下に直接配置
           strip_components: 2
+      
+      # データベースの初期化とデータ投入
+      - name: データベースの初期化（init.sql の実行）
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ACTIONS_AWS_HOST }}  
+          username: ${{ secrets.ACTIONS_AWS_USER }} 
+          key: ${{ secrets.ACTIONS_AWS_SECRET }} 
+          script: |
+            echo "--- Executing init.sql against Remote Database ---"     
+            
+            # 【パス修正】C#版の /var/www/myapp/ から、Java版の /home/${{ secrets.ACTIONS_AWS_USER }}/app/ へ変更
+            PGPASSWORD="${{ secrets.AWS_DB_PASSWORD }}" psql -h ${{ secrets.AWS_DB_HOST }} -U ${{ secrets.AWS_DB_USER }} -d postgres -f /home/${{ secrets.ACTIONS_AWS_USER }}/app/init.sql
+            
+            echo "--- Verifying Data Insertion ---"
+            # 作成された ActionsDB に接続し、productテーブルの件数を確認する
+            PGPASSWORD="${{ secrets.AWS_DB_PASSWORD }}" psql -h ${{ secrets.AWS_DB_HOST }} -U ${{ secrets.AWS_DB_USER }} -d ActionsDB -c "SELECT COUNT(*) AS product_total_count FROM product;"
+            
+            echo "--- Database Initialization Completed ---"
