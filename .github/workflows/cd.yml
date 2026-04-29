@@ -97,7 +97,7 @@ jobs:
           # 転送元のファイルパス(先ほどのビルドステップで生成されたJARファイル)
           source: "build/libs/*.jar"
           # 転送先のサーバー上のディレクトリパス
-          target: "/home/${{ secrets.ACTIONS_AZURE_USER }}/app"
+          target: "/home/${{ secrets.ACTIONS_AWS_USER }}/app"
           # 【重要】strip_components: 2 について
           # これを指定しないと、ターゲット配下に「build/libs/〜.jar」という
           # フォルダ階層ごとコピーされてしまう
