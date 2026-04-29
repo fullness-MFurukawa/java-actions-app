@@ -25,9 +25,9 @@ jobs:
         # 上記のアクションに渡すパラメータ（引数）の定義
         with:
           # GitHub Secretsから認証情報を安全に取得し、環境に展開(注入)する
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}         # 接続先サーバーのIPアドレス
-          username: ${{ secrets.ACTIONS_AZURE_USER }}     # ログインユーザー名（ubuntu）
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}      # 秘密鍵（PEM）のテキストデータ
+          host: ${{ secrets.ACTIONS_AWS_HOST }}         # 接続先サーバーのIPアドレス
+          username: ${{ secrets.ACTIONS_AWS_USER }}     # ログインユーザー名（ubuntu）
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}      # 秘密鍵（PEM）のテキストデータ
           
           # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
           # （「|」は複数行の文字列を記述するためのYAMLの記法）
@@ -41,9 +41,9 @@ jobs:
       - name: Open JDK 21をプロビジョニング
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           script: |
             #  対話型プロンプトを無効化する設定
             export DEBIAN_FRONTEND=noninteractive
@@ -82,25 +82,25 @@ jobs:
       - name: 転送先ディレクトリの事前作成
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送先のディレクトリが存在しないとエラーになるため、事前に作成
           # 「-p」オプションにより、既に存在する場合は何もしない(冪等性)ようにしている
-          script: mkdir -p /home/${{ secrets.ACTIONS_AZURE_USER }}/app
+          script: mkdir -p /home/${{ secrets.ACTIONS_AWS_USER }}/app
 
       - name: 成果物(JAR)のファイル転送(SCP)
         # 最新版(@master)を指定
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}
-          username: ${{ secrets.ACTIONS_AZURE_USER }}
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }}
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送元のファイルパス(先ほどのビルドステップで生成されたJARファイル)
           #【修正】カンマ(,)区切りで、コピーした init.sql も転送対象に含め
           source: "build/libs/*.jar,build/libs/init.sql"
           # 転送先のサーバー上のディレクトリパス
-          target: "/home/${{ secrets.ACTIONS_AZURE_USER }}/app"
+          target: "/home/${{ secrets.ACTIONS_AWS_USER }}/app"
           # 【重要】strip_components: 2 について
           # これを指定しないと、ターゲット配下に「build/libs/〜.jar」という
           # フォルダ階層ごとコピーされてしまう
@@ -111,17 +111,85 @@ jobs:
       - name: データベースの初期化（init.sql の実行）
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.ACTIONS_AZURE_HOST }}  
-          username: ${{ secrets.ACTIONS_AZURE_USER }} 
-          key: ${{ secrets.ACTIONS_AZURE_SECRET }} 
+          host: ${{ secrets.ACTIONS_AWS_HOST }}  
+          username: ${{ secrets.ACTIONS_AWS_USER }} 
+          key: ${{ secrets.ACTIONS_AWS_SECRET }} 
           script: |
             echo "--- Executing init.sql against Remote Database ---"     
             
-            # 【パス修正】C#版の /var/www/myapp/ から、Java版の /home/${{ secrets.ACTIONS_AZURE_USER }}/app/ へ変更
-            PGPASSWORD="${{ secrets.AZURE_DB_PASSWORD }}" psql -h ${{ secrets.AZURE_DB_HOST }} -U ${{ secrets.AZURE_DB_USER }} -d postgres -f /home/${{ secrets.ACTIONS_AZURE_USER }}/app/init.sql
+            # SQLスクリプト(init.sql)をpsqlコマンドで実行する
+            PGPASSWORD="${{ secrets.AWS_DB_PASSWORD }}" psql -h ${{ secrets.AWS_DB_HOST }} -U ${{ secrets.AWS_DB_USER }} -d postgres -f /home/${{ secrets.ACTIONS_AWS_USER }}/app/init.sql
             
             echo "--- Verifying Data Insertion ---"
             # 作成された ActionsDB に接続し、productテーブルの件数を確認する
-            PGPASSWORD="${{ secrets.AZURE_DB_PASSWORD }}" psql -h ${{ secrets.AZURE_DB_HOST }} -U ${{ secrets.AZURE_DB_USER }} -d ActionsDB -c "SELECT COUNT(*) AS product_total_count FROM product;"
+            PGPASSWORD="${{ secrets.AWS_DB_PASSWORD }}" psql -h ${{ secrets.AWS_DB_HOST }} -U ${{ secrets.AWS_DB_USER }} -d ActionsDB -c "SELECT COUNT(*) AS product_total_count FROM product;"
             
             echo "--- Database Initialization Completed ---"
+
+      # Webサーバーの連携とアプリケーションの起動
+      - name: リバースプロキシ構成とサービスの起動
+        uses: appleboy/ssh-action@master
+        with:
+          # VM(踏み台サーバー)へSSH接続するための情報をSecretsから取得
+          host: ${{ secrets.ACTIONS_AWS_HOST }}
+          username: ${{ secrets.ACTIONS_AWS_USER }}
+          key: ${{ secrets.ACTIONS_AWS_SECRET }}
+          script: |
+            echo "--- Configuring systemd service ---"      
+            
+            # 【1. systemd サービス定義ファイルの生成】
+            sudo bash -c 'cat << EOF > /etc/systemd/system/myapp.service
+            [Unit]
+            Description=Java Spring Boot Application
+            
+            [Service]
+            WorkingDirectory=/home/${{ secrets.ACTIONS_AWS_USER }}/app
+            
+            # 起動コマンド：javaコマンドでJARファイルを実行し、内蔵Tomcatを8080番ポートで起動
+            ExecStart=/usr/bin/java -jar /home/${{ secrets.ACTIONS_AWS_USER }}/app/java-actions-app-0.0.1-SNAPSHOT.jar
+            
+            Restart=always
+            RestartSec=10
+            SyslogIdentifier=java-myapp
+            User=${{ secrets.ACTIONS_AWS_USER }}
+            Environment=SPRING_PROFILES_ACTIVE=prod
+            
+            # データベースの接続情報を環境変数として注入（Secretsの活用）
+            Environment=SPRING_DATASOURCE_URL=jdbc:postgresql://${{ secrets.AWS_DB_HOST }}:5432/ActionsDB
+            Environment=SPRING_DATASOURCE_USERNAME=${{ secrets.AWS_DB_USER }}
+            Environment=SPRING_DATASOURCE_PASSWORD=${{ secrets.AWS_DB_PASSWORD }}
+            
+            [Install]
+            WantedBy=multi-user.target
+            EOF'
+
+            echo "--- Configuring Nginx ---"
+            
+            # 【2. Nginx リバースプロキシ設定の生成】
+            sudo bash -c 'cat << EOF > /etc/nginx/sites-available/default
+            server {
+                listen 80;
+                server_name _;
+                
+                location / {
+                    proxy_pass http://localhost:8080;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade \$http_upgrade;
+                    proxy_set_header Connection keep-alive;
+                    proxy_set_header Host \$host;
+                    proxy_cache_bypass \$http_upgrade;
+                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto \$scheme;
+                }
+            }
+            EOF'
+
+            echo "--- Reloading Daemons and Restarting Services ---"
+            
+            # 【3. 設定の反映とサービスの起動】
+            sudo systemctl daemon-reload
+            sudo systemctl enable myapp.service
+            sudo systemctl restart myapp.service
+            sudo systemctl restart nginx
+            
+            echo "--- Deployment Completed Successfully! ---"
