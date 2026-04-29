@@ -85,7 +85,7 @@ jobs:
           key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送先のディレクトリが存在しないとエラーになるため、事前に作成
           # 「-p」オプションにより、既に存在する場合は何もしない(冪等性)ようにしている
-          script: mkdir -p /home/${{ secrets.ACTIONS_AZURE_USER }}/app
+          script: mkdir -p /home/${{ secrets.ACTIONS_AWS_USER }}/app
 
       - name: 成果物(JAR)のファイル転送(SCP)
         # 最新版(@master)を指定
