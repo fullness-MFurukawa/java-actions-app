@@ -118,7 +118,7 @@ jobs:
             echo "--- Executing init.sql against Remote Database ---"     
             
             # 【パス修正】C#版の /var/www/myapp/ から、Java版の /home/${{ secrets.ACTIONS_AZURE_USER }}/app/ へ変更
-            PGPASSWORD="${{ secrets.AZURE_DB_PASSWORD }}" psql -h ${{ secrets.AZURE_DB_HOST }} -U ${{ secrets.AZUREDB_USER }} -d postgres -f /home/${{ secrets.ACTIONS_AZURE_USER }}/app/init.sql
+            PGPASSWORD="${{ secrets.AZURE_DB_PASSWORD }}" psql -h ${{ secrets.AZURE_DB_HOST }} -U ${{ secrets.AZURE_DB_USER }} -d postgres -f /home/${{ secrets.ACTIONS_AZURE_USER }}/app/init.sql
             
             echo "--- Verifying Data Insertion ---"
             # 作成された ActionsDB に接続し、productテーブルの件数を確認する
