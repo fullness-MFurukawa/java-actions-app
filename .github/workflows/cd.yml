@@ -97,7 +97,8 @@ jobs:
           username: ${{ secrets.ACTIONS_AWS_USER }}
           key: ${{ secrets.ACTIONS_AWS_SECRET }}
           # 転送元のファイルパス(先ほどのビルドステップで生成されたJARファイル)
-          source: "build/libs/*.jar"
+          #【修正】カンマ(,)区切りで、コピーした init.sql も転送対象に含め
+          source: "build/libs/*.jar,build/libs/init.sql"
           # 転送先のサーバー上のディレクトリパス
           target: "/home/${{ secrets.ACTIONS_AWS_USER }}/app"
           # 【重要】strip_components: 2 について
