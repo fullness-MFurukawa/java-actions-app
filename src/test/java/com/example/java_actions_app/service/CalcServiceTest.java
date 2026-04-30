@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** 
- * 計算サービスクラスの単体テストクラス 
- */
+/** 計算サービスクラスの単体テストクラス */
 public class CalcServiceTest {
 
   // テスト対象のクラスをインスタンス化
