@@ -192,13 +192,13 @@ jobs:
             sudo systemctl restart myapp.service
 
             # --- ここから追加 ---
-            echo "--- Switching Nginx Configuration ---"
+            #echo "--- Switching Nginx Configuration ---"
             # 昨日のNext.jsの設定(ショートカット)が存在すれば削除して無効化する
-            sudo rm -f /etc/nginx/sites-enabled/ts-actions-app
-            sudo rm -f /etc/nginx/sites-enabled/nextjs-app
+            #sudo rm -f /etc/nginx/sites-enabled/ts-actions-app
+            #sudo rm -f /etc/nginx/sites-enabled/nextjs-app
             
             # 今日作成したJava用(default)の設定のショートカットを作成して有効化する
-            sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+            #sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
             # --- ここまで追加 ---
 
 

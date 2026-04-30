@@ -35,8 +35,8 @@ jobs:
     - name: 自動テストの実行 (単体・結合・DB連動)
       # テストタスクのみを実行
       run: ./gradlew test
+      
     # テスト結果レポートをGitHub Actionsのアーティファクトとして保存
-    # 演習5-7
     - name: テスト結果レポートのアップロード
       uses: actions/upload-artifact@v4
       # テストが失敗した場合(failure)でも、レポートは保存するようにする
