@@ -4,7 +4,10 @@ import com.example.java_actions_app.infrastructure.entity.Product;
 import com.example.java_actions_app.infrastructure.repository.ProductRepository;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 /** 商品情報を扱うサービスインターフェイスの実装 */
+@Service
 public class ProductServiceImpl implements ProductService {
 
   private final ProductRepository productRepository;
